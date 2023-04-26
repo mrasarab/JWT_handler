@@ -1,0 +1,35 @@
+import time
+import jwt_handler
+from decouple import config
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+JWT_SECRET = os.getenv('JWT_SECRET')
+JWT_ALGORITHM = os.getenv('JWT_ALGORITHM')
+
+def token_response(token : str):
+    return {
+        "acess token" : token
+    }
+
+def signJWT(email: str):
+    payload = {
+        "userID" : email,
+        "expiry" : time.time() + 1000
+    }
+    token = jwt_handler.encode(payload, JWT_SECRET,algorithm=JWT_ALGORITHM)
+    return token_response(token)
+
+
+def decodeJWT(token:dict):
+        
+        t= dict(token)
+        decode_token = jwt_handler.decode(t, JWT_SECRET, algorithms=JWT_ALGORITHM)
+        try:
+                if decode_token['expiry'] > time.time():
+                         return decode_token 
+                else:
+                        None
+        except: return{}
